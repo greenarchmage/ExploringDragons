@@ -6,63 +6,89 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
   public GameObject Skillpanel;
+    public GameObject SampleEnemy;
 
-  private Character currentChar;
-  private int? selectedSkill;
-
-    private float enemyTurnCooldown = 3;
-    private float nextEnemyTurn = 3;
-    private Character currentEnemy;
+    private Character playerChar; // TODO: Move to some sort of AI or targeting system
+    private Character currentChar;
+    private Character nextChar;
+    private int? selectedSkill;
 
 	// Use this for initialization
 	void Start () {
     
+        // shit initialization
+        // Player init
+        Owner player = new Owner() { Type = Owner.OwnerType.Player };
+        CharacterObj playerCharObj = new CharacterObj() { Strength = 10, Intelligence = 10, MaxHitpoints = 80, CharacterOwner = player, CurrentHitpoints = 80,
+          Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack(), new CureLightWounds() } };
 
-    // shit initialization
-    // Player init
-    Owner player = new Owner() { Type = Owner.OwnerType.Player };
-    CharacterObj playerChar = new CharacterObj() { Strength = 10, Intelligence = 10, MaxHitpoints = 80, CharacterOwner = player, CurrentHitpoints = 80,
-      Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack(), new CureLightWounds() } };
-    GameObject.Find("Character").GetComponent<Character>().CharObj = playerChar;
-    currentChar = GameObject.Find("Character").GetComponent<Character>();
-    Skillpanel.GetComponent<SkillPanel>().SetCharacterSkills(playerChar);
+        playerChar = GameObject.Find("Character").GetComponent<Character>();
+        playerChar.CharObj = playerCharObj;
+        Skillpanel.GetComponent<SkillPanel>().SetCharacterSkills(playerCharObj);
 
-    // Monsters init
-    Owner monsters = new Owner() { Type = Owner.OwnerType.Monster };
-    CharacterObj enemyMonster = new CharacterObj() { Strength = 5, MaxHitpoints = 44, CharacterOwner = monsters, CurrentHitpoints = 44,
-      Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack() }
-    };
-        currentEnemy = GameObject.Find("EnemyModel").GetComponent<Character>();
-        currentEnemy.CharObj = enemyMonster;
-  }
+        // Monsters init
+        NextBattle();
+
+        // Turn start
+        nextChar = playerChar;
+        NextTurn();
+    }
 	
 	// Update is called once per frame
 	void Update () {
-    // Target skills
-    if (Input.GetMouseButtonDown(0))
-    {
-      RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), new Vector2(0, 0));
-      if (hit)
-      {
-        Debug.Log(hit.collider);
-        Character hitCharac = hit.collider.gameObject.GetComponent<Character>();
-        if (selectedSkill != null && hitCharac != null)
-        {
-          currentChar.UseSkill(selectedSkill, hitCharac.CharObj);
-          // TODO better system for checking for skill effect
-          if(hitCharac.CharObj.CurrentHitpoints <= 0)
-          {
-            Destroy(hit.collider.gameObject);
-          }
+        if (currentChar.Owner.Type == Owner.OwnerType.Player) {
+            // Target skills
+            if (Input.GetMouseButtonDown(0))
+            {
+              RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), new Vector2(0, 0));
+              if (hit)
+              {
+                Debug.Log(hit.collider);
+                Character hitCharac = hit.collider.gameObject.GetComponent<Character>();
+                if (selectedSkill != null && hitCharac != null)
+                {
+                    currentChar.UseSkill(selectedSkill, hitCharac.CharObj);
+                    // TODO better system for checking for skill effect
+                    if(hitCharac.CharObj.CurrentHitpoints <= 0)
+                    {
+                        Destroy(hit.collider.gameObject);
+                        NextBattle();
+                    }
+                    NextTurn();
+                }
+              }
+            }
+        } else {
+            // TODO: Move to AI or targeting system
+            currentChar.UseSkill(0, playerChar.CharObj);
+            if (playerChar.CharObj.CurrentHitpoints <= 0)
+                Debug.Log("You Dead homie!!");
+            NextTurn();
         }
-      }
-        }
-        if (nextEnemyTurn <= 0) {
-            nextEnemyTurn = enemyTurnCooldown;
-            currentEnemy.UseSkill(0, currentChar.CharObj);
-        }
-        else { nextEnemyTurn -= Time.deltaTime; }
     }
+
+    public void NextTurn()
+    {
+        currentChar = nextChar;
+        nextChar = TurnManager.Instance.NextCharacter();
+    }
+
+    public void NextBattle()
+    {
+        // Monsters init
+        Owner monsters = new Owner() { Type = Owner.OwnerType.Monster };
+        CharacterObj enemyMonster = new CharacterObj() {
+            Strength = 5, MaxHitpoints = 44, CurrentHitpoints = 44,
+            CharacterOwner = monsters,
+            Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack() }
+        };
+        var enemyCharacter = Instantiate(SampleEnemy).GetComponent<Character>();
+        enemyCharacter.gameObject.SetActive(true);
+        
+        enemyCharacter.CharObj = enemyMonster;
+        TurnManager.Instance.Renew();
+    }
+
   /// <summary>
   /// UI method
   /// </summary>

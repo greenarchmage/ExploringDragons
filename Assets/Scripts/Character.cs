@@ -8,6 +8,8 @@ public class Character : MonoBehaviour
     private SpriteRenderer spriteRenderer;
 
     public CharacterObj CharObj { get; set; }
+    public Owner Owner { get { return CharObj.CharacterOwner; } }
+
     public void UseSkill(int? selectedSkill, CharacterObj target)
     {
         CharObj.Skills[selectedSkill.Value].Excute(CharObj, target);
