@@ -9,6 +9,11 @@ public class GameController : MonoBehaviour {
 
   private Character currentChar;
   private int? selectedSkill;
+
+    private float enemyTurnCooldown = 3;
+    private float nextEnemyTurn = 3;
+    private Character currentEnemy;
+
 	// Use this for initialization
 	void Start () {
     
@@ -16,7 +21,7 @@ public class GameController : MonoBehaviour {
     // shit initialization
     // Player init
     Owner player = new Owner() { Type = Owner.OwnerType.Player };
-    CharacterObj playerChar = new CharacterObj() { Strength = 10, Intelligence = 10, MaxHitpoints = 20, CharacterOwner = player, CurrentHitpoints = 20,
+    CharacterObj playerChar = new CharacterObj() { Strength = 10, Intelligence = 10, MaxHitpoints = 80, CharacterOwner = player, CurrentHitpoints = 80,
       Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack(), new CureLightWounds() } };
     GameObject.Find("Character").GetComponent<Character>().CharObj = playerChar;
     currentChar = GameObject.Find("Character").GetComponent<Character>();
@@ -24,10 +29,11 @@ public class GameController : MonoBehaviour {
 
     // Monsters init
     Owner monsters = new Owner() { Type = Owner.OwnerType.Monster };
-    CharacterObj enemyMonster = new CharacterObj() { Strength = 5, MaxHitpoints = 10, CharacterOwner = monsters, CurrentHitpoints = 10,
+    CharacterObj enemyMonster = new CharacterObj() { Strength = 5, MaxHitpoints = 44, CharacterOwner = monsters, CurrentHitpoints = 44,
       Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack() }
     };
-    GameObject.Find("EnemyModel").GetComponent<Character>().CharObj = enemyMonster;
+        currentEnemy = GameObject.Find("EnemyModel").GetComponent<Character>();
+        currentEnemy.CharObj = enemyMonster;
   }
 	
 	// Update is called once per frame
@@ -50,8 +56,13 @@ public class GameController : MonoBehaviour {
           }
         }
       }
+        }
+        if (nextEnemyTurn <= 0) {
+            nextEnemyTurn = enemyTurnCooldown;
+            currentEnemy.UseSkill(0, currentChar.CharObj);
+        }
+        else { nextEnemyTurn -= Time.deltaTime; }
     }
-	}
   /// <summary>
   /// UI method
   /// </summary>
