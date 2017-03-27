@@ -5,13 +5,14 @@ using Assets.Scripts.Skills;
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
+  public GameObject Skillpanel;
 
-  //private Owner currentOwner;
   private Character currentChar;
-
   private int? selectedSkill;
 	// Use this for initialization
 	void Start () {
+    
+
     // shit initialization
     // Player init
     Owner player = new Owner() { Type = Owner.OwnerType.Player };
@@ -19,6 +20,7 @@ public class GameController : MonoBehaviour {
       Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack(), new CureLightWounds() } };
     GameObject.Find("Character").GetComponent<Character>().CharObj = playerChar;
     currentChar = GameObject.Find("Character").GetComponent<Character>();
+    Skillpanel.GetComponent<SkillPanel>().SetCharacterSkills(playerChar);
 
     // Monsters init
     Owner monsters = new Owner() { Type = Owner.OwnerType.Monster };
