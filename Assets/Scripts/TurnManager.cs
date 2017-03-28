@@ -3,28 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour, ITurnManager {
+public class TurnManager : MonoBehaviour {
 
-    private static TurnManager _instance;
-    public static ITurnManager Instance { get { return _instance; } }
+    private static TurnManager instanceObj;
+    public static TurnManager Instance { get { return instanceObj; } }
 
-    private List<Character> _turnOrder = new List<Character>();
-    public List<Character> TurnOrder { get { return _turnOrder; } }
+    private List<Character> turnOrderList = new List<Character>();
+    public List<Character> TurnOrder { get { return turnOrderList; } }
     private IEnumerator<Character> turnEnumerator;
 
     void Awake()
     {
-        if (_instance != null && !_instance.Equals(this))
-            GameObject.Destroy(_instance.gameObject);
-        _instance = this;
+        if (instanceObj != null && !instanceObj.Equals(this))
+            GameObject.Destroy(instanceObj.gameObject);
+        instanceObj = this;
     }
 
 	// Use this for initialization
 	void Start () {
-        var allCharacters = FindObjectsOfType<Character>();
+        Character[] allCharacters = FindObjectsOfType<Character>();
         TurnOrder.AddRange(allCharacters);
 
-        turnEnumerator = _turnOrder.GetEnumerator();
+        turnEnumerator = turnOrderList.GetEnumerator();
 	}
 	
     public Character NextCharacter()
@@ -39,11 +39,11 @@ public class TurnManager : MonoBehaviour, ITurnManager {
     {
         TurnOrder.Clear();
 
-        var allCharacters = FindObjectsOfType<Character>();
+        Character[] allCharacters = FindObjectsOfType<Character>();
         allCharacters.Select(c => c.gameObject).Where(gObj => enabled);
         TurnOrder.AddRange(allCharacters.Select(c => c.GetComponent<Character>()));
 
-        turnEnumerator = _turnOrder.GetEnumerator();
+        turnEnumerator = turnOrderList.GetEnumerator();
         turnEnumerator.MoveNext();
     }
 	// Update is called once per frame
