@@ -6,8 +6,8 @@ using Assets.Scripts.Character;
 
 namespace Assets.Scripts.Skills
 {
-  public interface ISkill
-  {
-    void Excute(CharacterObj executor, CharacterObj target);
-  }
+	public interface ISkill
+	{
+		void Excute(CharacterObj executor, CharacterObj target);
+	}
 }
