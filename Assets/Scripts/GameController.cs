@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.Scripts.Character;
 using Assets.Scripts.Skills;
 using UnityEngine;
+using Assets.Scripts.Weapons;
 
 public class GameController : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class GameController : MonoBehaviour
 			CurrentHitpoints = 80,
 			Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack(), new CureLightWounds() }
 		};
+        playerCharObj.Equiped = new Longsword();
 
 		playerChar = GameObject.Find("Character").GetComponent<Character>();
 		playerChar.CharObj = playerCharObj;
@@ -98,7 +100,8 @@ public class GameController : MonoBehaviour
 			CharacterOwner = monsters,
 			Skills = new List<Assets.Scripts.Skills.ISkill>() { new BaseAttack() }
 		};
-		var enemyCharacter = Instantiate(SampleEnemy).GetComponent<Character>();
+        enemyMonster.Equiped = new Spear();
+        Character enemyCharacter = Instantiate(SampleEnemy).GetComponent<Character>();
 		enemyCharacter.gameObject.SetActive(true);
 
 		enemyCharacter.CharObj = enemyMonster;

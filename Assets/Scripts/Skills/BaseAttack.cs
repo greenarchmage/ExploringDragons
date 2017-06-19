@@ -14,9 +14,10 @@ namespace Assets.Scripts.Skills
 			// Do something with attacking, like strength
 			if (target.CharacterOwner != executor.CharacterOwner)
 			{
-				Debug.Log("Hitting with base attack for " + executor.Strength / 2);
-				target.CurrentHitpoints -= executor.Strength / 2;
-			}
+                int damageDealt = executor.Equiped != null ? UnityEngine.Random.Range(0, executor.Equiped.DamageRange) + 1 + executor.Strength / 2 : 1 + executor.Strength / 2;
+                Debug.Log("Hitting with base attack for " + damageDealt);
+                target.CurrentHitpoints -= damageDealt;
+            }
 		}
 	}
 }
